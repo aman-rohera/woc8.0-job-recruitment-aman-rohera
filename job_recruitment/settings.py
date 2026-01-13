@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-60tr-m1cuauf(&8%xnef09$*fzgk)me^!vno#j!5xyf%yyp2tv
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
+AUTH_USER_MODEL = 'souls.CursedUser'
 
 # Application definition
 
@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'accounts',
+    'souls',
 ]
 
 MIDDLEWARE = [
