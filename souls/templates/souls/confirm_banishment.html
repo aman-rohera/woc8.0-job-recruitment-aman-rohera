@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="crypt-container">
+    <h1 style="color: red; font-family: 'Creepster';">⚠️ FINAL WARNING</h1>
+    <p>Are you sure you want to banish your soul to the void? This action cannot be undone.</p>
+    <form method="POST">
+        {% csrf_token %}
+        <button type="submit" class="btn-danger">Yes, Banish Me Forever</button>
+        <a href="{% url 'home' %}" class="btn-safe">No, I want to live!</a>
+    </form>
+</div>
+{% endblock %}

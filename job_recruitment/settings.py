@@ -10,7 +10,12 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import os
 from pathlib import Path
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,10 +25,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-60tr-m1cuauf(&8%xnef09$*fzgk)me^!vno#j!5xyf%yyp2tv'
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-fallback-key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = []
 AUTH_USER_MODEL = 'souls.CursedUser'
@@ -31,13 +36,16 @@ AUTH_USER_MODEL = 'souls.CursedUser'
 # Application definition
 
 INSTALLED_APPS = [
+    'souls',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'souls',
+    
+    'jobs',
+    'applications',
 ]
 
 MIDDLEWARE = [
@@ -116,3 +124,65 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# ==========================================
+# SESSION SETTINGS (Auto Logout)
+# ==========================================
+
+# Session expires after 1 hour (3600 seconds)
+SESSION_COOKIE_AGE = 3600
+
+# Session expires when browser closes
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+# Save session on every request (resets the expiry timer on activity)
+SESSION_SAVE_EVERY_REQUEST = True
+
+# ==========================================
+# AUTHENTICATION & EMAIL SETTINGS (BREVO)
+# ==========================================
+
+# 1. Login/Logout Redirection
+# ------------------------------------------
+# After a successful login, send the specter to the graveyard home
+LOGIN_REDIRECT_URL = 'dashboard'
+
+# After logging out, send them back to the login portal
+LOGOUT_REDIRECT_URL = 'login' 
+
+
+# ------------------------------------------
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+
+EMAIL_HOST = 'smtp.gmail.com'
+
+# Standard secure port for SMTP
+EMAIL_PORT = 587
+
+# Use TLS (Transport Layer Security) to encrypt the connection
+EMAIL_USE_TLS = True
+
+# IMPORTANT: Replace these with your actual Brevo credentials
+# Your Brevo LOGIN email address
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
+
+# Your Brevo SMTP KEY (NOT your login password!)
+# Get this from Brevo Dashboard -> SMTP & API -> Create New Key
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
+
+# The default "From" address for all automated emails
+DEFAULT_FROM_EMAIL = f'CareerSphere <{os.getenv("EMAIL_HOST_USER", "")}>'
+
+
+
+
+
+
+
+
+
+

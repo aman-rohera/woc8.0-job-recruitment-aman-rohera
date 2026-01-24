@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .app-detail { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
+    .back-link { color: #007bff; text-decoration: none; display: inline-block; margin-bottom: 20px; }
+    .section { 
+        background: #111; padding: 30px; border-radius: 10px; 
+        border: 1px solid #333; margin-bottom: 20px; 
+    }
+    .section h2 { color: #00ff9d; margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+    .section h3 { color: #fff; margin-bottom: 15px; }
+    .info-row { margin-bottom: 12px; color: #ccc; }
+    .info-row strong { color: #888; }
+    .status { 
+        display: inline-block; padding: 8px 16px; border-radius: 20px; 
+        font-weight: bold; margin-bottom: 20px;
+    }
+    .status-purgatory { background: #ffc107; color: #000; }
+    .status-ascended { background: #28a745; color: #fff; }
+    .status-banished { background: #dc3545; color: #fff; }
+    .cover-letter { 
+        background: #0a0a0a; padding: 20px; border-radius: 6px; 
+        color: #ccc; line-height: 1.8; white-space: pre-wrap;
+    }
+    .actions { display: flex; gap: 10px; margin-top: 20px; }
+    .btn { 
+        padding: 12px 24px; border-radius: 6px; text-decoration: none; 
+        font-weight: bold; border: none; cursor: pointer;
+    }
+    .btn-accept { background: #28a745; color: white; }
+    .btn-reject { background: #dc3545; color: white; }
+    .btn-pending { background: #ffc107; color: #000; }
+</style>
+
+<div class="app-detail">
+    {% if user == application.job.summoner %}
+        <a href="{% url 'job_applications' application.job.pk %}" class="back-link">← Back to Applications</a>
+    {% else %}
+        <a href="{% url 'my_applications' %}" class="back-link">← Back to My Applications</a>
+    {% endif %}
+    
+    <div class="section">
+        <h2>📋 Soul Submission Details (Application)</h2>
+        <span class="status status-{{ application.doom_status }}">
+            {{ application.get_doom_status_display }}
+        </span>
+        <div class="info-row"><strong>Summoned (Applied):</strong> {{ application.applied_at|date:"F d, Y" }}</div>
+    </div>
+    
+    <div class="section">
+        <h3>🔮 Dark Opportunity (Job Info)</h3>
+        <div class="info-row"><strong>Role Title:</strong> {{ application.job.title }}</div>
+        <div class="info-row"><strong>Haunted Ground (Location):</strong> {{ application.job.haunted_ground }}</div>
+        <div class="info-row"><strong>Bounty (Salary):</strong> {{ application.job.bounty_gold }}</div>
+        <div class="info-row"><strong>Coven (Company):</strong> {{ application.job.summoner.organization_name|default:"Unknown" }}</div>
+    </div>
+    
+    <div class="section">
+        <h3>👻 Specter Info (Applicant)</h3>
+        <div class="info-row"><strong>Mortal Name:</strong> {{ application.seeker.first_name }} {{ application.seeker.last_name }}</div>
+        <div class="info-row"><strong>Spirit Signal (Email):</strong> {{ application.seeker.email }}</div>
+        <div class="info-row"><strong>Telepathy Freq (Phone):</strong> {{ application.seeker.phone|default:"Not provided" }}</div>
+        <div class="info-row"><strong>Haunted Ground (Location):</strong> {{ application.seeker.location|default:"Not provided" }}</div>
+        <div class="info-row"><strong>Dark Arts (Skills):</strong> {{ application.seeker.profile.dark_arts|default:"Not provided" }}</div>
+    </div>
+    
+    <div class="section">
+        <h3>📄 Resurrection Scroll (Resume)</h3>
+        {% if application.resume %}
+            <a href="{{ application.resume.url }}" target="_blank" style="color: #00ff9d; font-weight: bold;">📄 View Attached Scroll</a>
+        {% elif application.seeker.profile.resurrection_scroll %}
+            <a href="{{ application.seeker.profile.resurrection_scroll.url }}" target="_blank" style="color: #00ff9d; font-weight: bold;">📄 View Profile Scroll</a>
+        {% else %}
+            <p style="color: #888;">No scroll provided</p>
+        {% endif %}
+    </div>
+
+    <div class="section">
+        <h3>📝 Incantation (Cover Letter)</h3>
+        <div class="cover-letter">{{ application.cover_scroll }}</div>
+    </div>
+    
+    {% if user == application.job.summoner %}
+    <div class="section">
+        <h3>⚡ Update Doom Status (Application Status)</h3>
+        <div class="actions">
+            <form method="POST" action="{% url 'update_status' application.pk %}" style="display:inline;">
+                {% csrf_token %}
+                <input type="hidden" name="status" value="purgatory">
+                <button type="submit" class="btn btn-pending">⏳ Purgatory (Pending)</button>
+            </form>
+            <form method="POST" action="{% url 'update_status' application.pk %}" style="display:inline;">
+                {% csrf_token %}
+                <input type="hidden" name="status" value="ascended">
+                <button type="submit" class="btn btn-accept">✓ Ascend (Accept)</button>
+            </form>
+            <form method="POST" action="{% url 'update_status' application.pk %}" style="display:inline;">
+                {% csrf_token %}
+                <input type="hidden" name="status" value="banished">
+                <button type="submit" class="btn btn-reject">✗ Banish (Reject)</button>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

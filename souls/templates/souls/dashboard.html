@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .dashboard-container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 40px 20px;
+    }
+    
+    .welcome-banner {
+        background: linear-gradient(135deg, #1a3a1a, #0d2e0d);
+        color: #00ff9d;
+        padding: 15px 20px;
+        border-radius: 8px;
+        margin-bottom: 40px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border: 1px solid #00ff9d;
+    }
+    
+    .welcome-banner .close-btn {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: #00ff9d;
+    }
+    
+    .hero-section {
+        margin-bottom: 60px;
+    }
+    
+    .hero-section h1 {
+        font-family: 'Creepster', cursive;
+        font-size: 2.5rem;
+        color: #00ff9d;
+        margin-bottom: 10px;
+        text-shadow: 0 0 10px rgba(0, 255, 157, 0.5);
+    }
+    
+    .hero-section p {
+        color: #aaa;
+        font-size: 1.1rem;
+        margin-bottom: 25px;
+    }
+    
+    .hero-buttons {
+        display: flex;
+        gap: 15px;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #00ff9d, #00cc7a);
+        color: #000;
+        padding: 12px 24px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: bold;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    .btn-primary:hover {
+        box-shadow: 0 0 15px rgba(0, 255, 157, 0.5);
+        transform: translateY(-2px);
+    }
+    
+    .btn-outline {
+        background: transparent;
+        color: #ff6600;
+        padding: 12px 24px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: bold;
+        border: 1px solid #ff6600;
+        transition: all 0.3s;
+    }
+    
+    .btn-outline:hover {
+        background: rgba(255, 102, 0, 0.1);
+        box-shadow: 0 0 15px rgba(255, 102, 0, 0.3);
+    }
+    
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+    }
+    
+    @media (max-width: 768px) {
+        .features-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    .feature-card {
+        background: #111;
+        padding: 25px;
+        border-radius: 10px;
+        border: 1px solid #333;
+        box-shadow: 0 0 15px rgba(0, 255, 157, 0.05);
+        transition: all 0.3s;
+    }
+    
+    .feature-card:hover {
+        border-color: #00ff9d;
+        box-shadow: 0 0 20px rgba(0, 255, 157, 0.15);
+    }
+    
+    .feature-card h3 {
+        font-family: 'Creepster', cursive;
+        color: #ff6600;
+        font-size: 1.2rem;
+        margin-bottom: 10px;
+        text-shadow: 0 0 5px rgba(255, 102, 0, 0.3);
+    }
+    
+    .feature-card p {
+        color: #aaa;
+        font-size: 0.95rem;
+        line-height: 1.5;
+    }
+</style>
+
+<div class="dashboard-container">
+    {% if messages %}
+        {% for message in messages %}
+        <div class="welcome-banner">
+            <span>🎃 {{ message }}</span>
+            <button class="close-btn" onclick="this.parentElement.style.display='none'">×</button>
+        </div>
+        {% endfor %}
+    {% endif %}
+    
+    <div class="hero-section">
+        <h1>🦇 Find Your Next Dark Calling (Job)</h1>
+        <p>Search haunted openings, offer your soul quickly, and track your doom status.</p>
+        
+        <div class="hero-buttons">
+            {% if user.reincarnation_type == 'specter' %}
+                <a href="{% url 'job_list' %}" class="btn-primary">👻 Explore Dark Opportunities (Jobs)</a>
+                <a href="{% url 'my_applications' %}" class="btn-outline">📜 My Soul Submissions (Applications)</a>
+            {% else %}
+                <a href="{% url 'job_create' %}" class="btn-primary">⚰️ Summon a Position (Post Job)</a>
+                <a href="{% url 'my_jobs' %}" class="btn-outline">🏰 My Dark Postings (Jobs)</a>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="features-grid">
+        <div class="feature-card">
+            <h3>🔮 Search the Void (Smart Search)</h3>
+            <p>Filter by role, haunted ground, and contract type to find the right dark opportunities.</p>
+        </div>
+        
+        <div class="feature-card">
+            <h3>⚡ Offer Your Soul (Quick Apply)</h3>
+            <p>Submit your incantation in minutes and track your doom status across all roles.</p>
+        </div>
+        
+        <div class="feature-card">
+            <h3>🗂️ Control the Chaos (Stay Organized)</h3>
+            <p>Your soul submissions live in one crypt with clear omens from summoners.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

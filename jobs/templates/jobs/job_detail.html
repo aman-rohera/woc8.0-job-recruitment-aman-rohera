@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .job-detail { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
+    .job-header { 
+        background: #111; padding: 30px; border-radius: 10px; 
+        border: 1px solid #333; margin-bottom: 30px; 
+    }
+    .job-header h1 { color: #00ff9d; margin-bottom: 15px; font-size: 2rem; }
+    .job-meta { color: #888; margin-bottom: 20px; }
+    .job-meta span { margin-right: 25px; }
+    .job-actions { display: flex; gap: 15px; margin-top: 25px; }
+    .btn { 
+        padding: 12px 24px; border-radius: 6px; text-decoration: none; 
+        font-weight: bold; display: inline-block; 
+    }
+    .btn-primary { background: #007bff; color: white; }
+    .btn-secondary { background: #333; color: #ccc; border: 1px solid #444; }
+    .btn-danger { background: #dc3545; color: white; }
+    .job-body { 
+        background: #111; padding: 30px; border-radius: 10px; 
+        border: 1px solid #333; 
+    }
+    .job-body h3 { color: #fff; margin-bottom: 15px; }
+    .job-body p { color: #ccc; line-height: 1.8; white-space: pre-wrap; }
+    .employer-info { 
+        margin-top: 30px; padding-top: 20px; border-top: 1px solid #333; 
+    }
+</style>
+
+<div class="job-detail">
+    <div class="job-header">
+        <h1>{{ job.title }}</h1>
+        <div class="job-meta">
+            <span>📍 Haunted Ground (Location): {{ job.haunted_ground }}</span>
+            <span>💰 Bounty (Salary): {{ job.bounty_gold }}</span>
+            <span>🌙 Moon Phase (Job Type): {{ job.get_contract_type_display }}</span>
+            <span>📅 Summoned (Posted): {{ job.posted_at|date:"M d, Y" }}</span>
+        </div>
+        
+        <div class="job-actions">
+            {% if user.is_authenticated %}
+                {% if user.reincarnation_type == 'specter' %}
+                    <a href="{% url 'apply_to_job' job.pk %}" class="btn btn-primary">📜 Submit Soul (Apply)</a>
+                {% elif user == job.summoner %}
+                    <a href="{% url 'job_edit' job.pk %}" class="btn btn-secondary">✏️ Alter Spell (Edit)</a>
+                    <a href="{% url 'job_delete' job.pk %}" class="btn btn-danger">🔥 Banish (Delete)</a>
+                    <a href="{% url 'job_applications' job.pk %}" class="btn btn-secondary">📄 View Souls (Applications)</a>
+                {% endif %}
+            {% else %}
+                <a href="{% url 'login' %}" class="btn btn-primary">Resurrect to Apply (Login)</a>
+            {% endif %}
+            <a href="{% url 'job_list' %}" class="btn btn-secondary">← Back to Dark Opportunities</a>
+        </div>
+    </div>
+    
+    <div class="job-body">
+        <h3>📜 Grim Details (Description)</h3>
+        <p>{{ job.description }}</p>
+        
+        <div class="employer-info">
+            <h3>🏰 About the Summoner (Employer)</h3>
+            <p><strong>Coven (Organization):</strong> {{ job.summoner.organization_name|default:"Unknown Coven" }}</p>
+            <p><strong>Spirit Signal (Contact):</strong> {{ job.summoner.email }}</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container" style="margin-top: 60px;">
+
+    <div style="text-align: center; margin-bottom: 80px;">
+        <h1 class="spooky-title" style="font-size: 3.5rem; margin-bottom: 20px;">
+            Find Your Next <span style="color: #00ff9d;">Dark Calling (Job)</span>
+        </h1>
+        <p style="font-size: 1.2rem; color: #b3b3b3; max-width: 600px; margin: 0 auto 40px auto;">
+            Browse dark opportunities, offer your soul in minutes, and manage your afterlife career with ease.
+        </p>
+        
+        <div style="display: flex; gap: 20px; justify-content: center;">
+            <a href="{% url 'job_list' %}" class="spooky-btn">🔮 View Dark Opportunities (Jobs)</a>
+            
+            {% if not user.is_authenticated %}
+                <a href="{% url 'signup' %}" class="spooky-btn" style="background: transparent; border: 1px solid #00ff9d;">🧟 Summon Spirit (Sign Up)</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
+        
+        <div class="crypt-card" style="padding: 30px;">
+            <h3 style="color: #00ff9d; margin-bottom: 15px;">🔍 Search the Void (Smart Search)</h3>
+            <p style="color: #ccc;">Filter by role, haunted ground (location), and moon phase (job type) to find the right opportunities for your soul.</p>
+        </div>
+
+        <div class="crypt-card" style="padding: 30px;">
+            <h3 style="color: #d600ff; margin-bottom: 15px;">⚡ Offer Your Soul (Quick Apply)</h3>
+            <p style="color: #ccc;">Submit tailored incantations (cover letters) and track your doom status (application status) in one crypt.</p>
+        </div>
+
+        <div class="crypt-card" style="padding: 30px;">
+            <h3 style="color: #ff0055; margin-bottom: 15px;">📜 Summon Positions (Post Jobs)</h3>
+            <p style="color: #ccc;">Dungeon Masters (Employers) can summon, alter, and review soul submissions in a streamlined crypt (dashboard).</p>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

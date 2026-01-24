@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CareerSphere | The Afterlife Portal</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+         /*  HALLOWEEN THEME */
+        :root {
+            --bg-color: #1a0b2e;       /* Deep Graveyard Purple */
+            --card-bg: #2d1b4e;        /* Tombstone Grey/Purple */
+            --text-main: #e0e0e0;      /* Ghostly White */
+            --accent-orange: #ff7b00;  /* Pumpkin */
+            --accent-green: #00ff41;   /* Slime */
+            --accent-red: #ff0055;     /* Blood Moon */
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Spooky Headers */
+        h1, h2, h3, .spooky-title {
+            font-family: 'Creepster', cursive;
+            letter-spacing: 2px;
+            color: var(--accent-orange);
+            text-shadow: 2px 2px #000;
+        }
+
+        /*  Navigation Bar */
+        nav {
+            background-color: #000;
+            padding: 15px 30px;
+            border-bottom: 3px solid var(--accent-orange);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand {
+            font-family: 'Creepster';
+            font-size: 1.8rem;
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .nav-links a {
+            color: var(--text-main);
+            text-decoration: none;
+            margin-left: 20px;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-green);
+            text-shadow: 0 0 5px var(--accent-green);
+        }
+
+        /*  Container Layout */
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        /* Spooky Buttons */
+        .spooky-btn {
+            background-color: var(--accent-orange);
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            font-family: 'Creepster';
+            font-size: 1.2rem;
+            cursor: pointer;
+            border-radius: 5px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .spooky-btn:hover {
+            background-color: #ff9100;
+            box-shadow: 0 0 10px var(--accent-orange);
+        }
+        
+        .btn-danger {
+            background-color: var(--accent-red);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        /* Forms */
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            background: #000;
+            border: 1px solid var(--accent-orange);
+            color: #fff;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="{% url 'home' %}" class="nav-brand">🎃 CareerSphere (The Afterlife Portal)</a>
+        <div class="nav-links">
+            {% if user.is_authenticated %}
+                <a href="{% url 'soul_edit' %}" style="color: var(--accent-orange);">💀 {{ user.username }}</a>
+                <a href="{% url 'dashboard' %}">Crypt (Dashboard)</a>
+                <form action="{% url 'logout' %}" method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" style="background:none; border:none; color:inherit; cursor:pointer; font-weight:bold; font-family:inherit; font-size:inherit;">Rest in Peace (Logout)</button>
+                </form>
+            {% else %}
+                <a href="{% url 'login' %}">Resurrect (Login)</a>
+                <a href="{% url 'signup' %}">Join the Afterlife (Sign Up)</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <div class="container">
+        {% if messages %}
+            {% for message in messages %}
+                <div style="padding: 10px; background: #333; color: var(--accent-green); border: 1px solid var(--accent-green); margin-bottom: 20px;">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        {% block content %}
+        {% endblock %}
+    </div>
+
+</body>
+</html>

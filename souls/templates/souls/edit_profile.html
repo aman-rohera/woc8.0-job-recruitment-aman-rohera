@@ -1,0 +1,275 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    /* ===============================
+       Edit Box Styles
+    ================================ */
+    .edit-box {
+        background-color: #111;
+        border: 1px solid #333;
+        border-radius: 12px;
+        padding: 50px;
+        box-shadow: 0 0 20px rgba(0, 255, 157, 0.1);
+        margin-bottom: 40px;
+    }
+
+    .spooky-title {
+        text-align: center;
+        margin-bottom: 40px;
+        font-size: 2.5rem;
+    }
+
+    .box-label {
+        display: block;
+        color: #ccc;
+        margin-bottom: 10px;
+        font-weight: bold;
+        font-size: 0.95rem;
+        letter-spacing: 0.5px;
+    }
+
+    /* ===============================
+       Inputs (EXCEPT file)
+    ================================ */
+    .spooky-input {
+        width: 100%;
+        padding: 14px;
+        background: #000;
+        border: 1px solid #444;
+        color: #fff;
+        border-radius: 8px;
+        transition: border 0.3s;
+    }
+
+    .spooky-input:focus {
+        border-color: #00ff9d;
+        outline: none;
+        box-shadow: 0 0 10px rgba(0, 255, 157, 0.2);
+    }
+
+    /* ===============================
+       Custom File Upload
+    ================================ */
+    .hidden-file-input {
+        display: none;
+    }
+
+    .custom-file-btn {
+        width: 100%;
+        padding: 14px;
+        background: #000;
+        border: 1px dashed #444;
+        border-radius: 8px;
+        color: #ccc;
+        cursor: pointer;
+        text-align: center;
+        transition: all 0.2s;
+    }
+
+    .custom-file-btn:hover {
+        border-color: #00ff9d;
+        color: #00ff9d;
+    }
+
+    .file-name {
+        margin-top: 10px;
+        color: #aaa;
+        font-size: 0.9rem;
+    }
+
+    /* ===============================
+       Grid Layout
+    ================================ */
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        column-gap: 40px;
+        row-gap: 35px;
+    }
+
+    .full-width {
+        grid-column: span 2;
+    }
+
+    @media (max-width: 768px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+        .full-width {
+            grid-column: span 1;
+        }
+    }
+
+    .resume-box {
+        padding: 20px;
+        border: 1px dashed #444;
+        border-radius: 8px;
+        background: rgba(255,255,255,0.03);
+    }
+
+    .resume-actions {
+        margin-top: 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #000;
+        padding: 12px;
+        border-radius: 6px;
+        border: 1px solid #333;
+    }
+
+    .view-scroll {
+        color: #00ff9d;
+        font-weight: bold;
+        text-decoration: none;
+    }
+
+    .delete-scroll {
+        color: #ff0055;
+        border: 1px solid #ff0055;
+        padding: 6px 12px;
+        border-radius: 4px;
+        font-size: 0.9rem;
+        text-decoration: none;
+    }
+
+    .warning-text {
+        margin-top: 10px;
+        color: #ffcc00;
+        font-size: 0.9rem;
+    }
+</style>
+
+<div class="container" style="max-width: 900px; margin-top: 60px;">
+    <h2 class="spooky-title">✏️ Edit Your Soul Essence (Profile)</h2>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <!-- ===============================
+             CORE IDENTITY (Account Details)
+        ================================ -->
+        <div class="edit-box">
+            <h3 style="color:#00ff9d;border-bottom:1px solid #333;padding-bottom:15px;margin-bottom:30px;">
+                👻 Mortal Identity (Account Info)
+            </h3>
+
+            <div class="form-grid">
+                {% for field in u_form %}
+                    <div class="{% if field.name == 'organization_name' %}full-width{% endif %}">
+                        <label class="box-label">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                            <div style="color:#ff0055;margin-top:5px;">{{ field.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- ===============================
+             PROFILE & RESUME (Job Seekers Only)
+        ================================ -->
+        {% if user.reincarnation_type == 'specter' %}
+        <div class="edit-box">
+            <h3 style="color:#d600ff;border-bottom:1px solid #333;padding-bottom:15px;margin-bottom:30px;">
+                📜 The Legacy (Skills & Resume)
+            </h3>
+
+            <div style="display:flex;flex-direction:column;gap:35px;">
+                {% for field in p_form %}
+                    <div>
+                        <label class="box-label">{{ field.label }}</label>
+
+                        {% if field.name == 'resurrection_scroll' %}
+                            <div class="resume-box">
+
+                                {% if profile.resurrection_scroll %}
+                                    <div class="resume-actions">
+                                        <a href="{{ profile.resurrection_scroll.url }}" target="_blank" class="view-scroll">
+                                            📜 View Current Scroll
+                                        </a>
+
+                                        <a href="{% url 'delete_resume' %}"
+                                           class="delete-scroll"
+                                           onclick="return confirm('⚠️ Burn this scroll permanently?');">
+                                            🔥 Burn
+                                        </a>
+                                    </div>
+
+                                    <div class="warning-text">
+                                        Delete the current scroll to upload a new one.
+                                    </div>
+                                {% else %}
+                                    <!-- Hidden real file input -->
+                                    <input type="file"
+                                           name="resurrection_scroll"
+                                           id="resume_input"
+                                           class="hidden-file-input"
+                                           accept=".pdf">
+
+                                    <!-- Custom button -->
+                                    <label for="resume_input" class="custom-file-btn">
+                                        📜 Choose Resurrection Scroll (PDF)
+                                    </label>
+
+                                    <div id="file-name" class="file-name"></div>
+                                {% endif %}
+
+                            </div>
+                        {% else %}
+                            {{ field }}
+                        {% endif %}
+
+                        {% if field.errors %}
+                            <div style="color:#ff0055;margin-top:5px;">{{ field.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <button type="submit"
+                class="spooky-btn"
+                style="width:100%;font-size:1.2rem;padding:18px;margin-bottom:30px;">
+            💾 Seal the Pact (Save Changes)
+        </button>
+    </form>
+    
+    <!-- Banish Soul Section (Delete Account) -->
+    <div class="edit-box" style="border-color: #ff0055; margin-top: 20px;">
+        <h3 style="color:#ff0055;border-bottom:1px solid #333;padding-bottom:15px;margin-bottom:20px;">
+            ☠️ Danger Zone (Account Deletion)
+        </h3>
+        <p style="color: #aaa; margin-bottom: 20px;">Once you banish your soul, there is no going back. All your data will be permanently deleted.</p>
+        <form method="post" action="{% url 'banish_soul' %}" onsubmit="return confirm('⚠️ Are you absolutely sure you want to banish your soul forever? This cannot be undone!');">
+            {% csrf_token %}
+            <button type="submit" class="spooky-btn" style="width:100%;font-size:1.1rem;padding:15px;background:#ff0055;border-color:#ff0055;">
+                ☠️ Banish My Soul Forever (Delete Account)
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    document
+      .querySelectorAll('input:not([type="file"]), textarea, select')
+      .forEach(el => el.classList.add('spooky-input'));
+
+    const fileInput = document.getElementById('resume_input');
+    const fileNameBox = document.getElementById('file-name');
+
+    if (fileInput) {
+        fileInput.addEventListener('change', function () {
+            if (this.files.length > 0) {
+                fileNameBox.textContent = "Selected: " + this.files[0].name;
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

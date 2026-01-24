@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .job-apps { max-width: 900px; margin: 0 auto; padding: 40px 20px; }
+    .header { margin-bottom: 30px; }
+    .header h1 { color: #fff; margin-bottom: 10px; }
+    .header p { color: #888; }
+    .app-card { 
+        background: #111; padding: 25px; border-radius: 10px; 
+        border: 1px solid #333; margin-bottom: 15px; 
+    }
+    .app-card:hover { border-color: #00ff9d; }
+    .app-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+    .applicant-info h3 { color: #00ff9d; margin-bottom: 5px; }
+    .applicant-info p { color: #888; font-size: 0.9rem; }
+    .status { 
+        padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; 
+    }
+    .status-purgatory { background: #ffc107; color: #000; }
+    .status-ascended { background: #28a745; color: #fff; }
+    .status-banished { background: #dc3545; color: #fff; }
+    .cover-letter { 
+        background: #0a0a0a; padding: 15px; border-radius: 6px; 
+        color: #ccc; margin-bottom: 15px; white-space: pre-wrap;
+    }
+    .actions { display: flex; gap: 10px; }
+    .btn { 
+        padding: 10px 20px; border-radius: 6px; text-decoration: none; 
+        font-weight: bold; border: none; cursor: pointer; font-size: 0.9rem;
+    }
+    .btn-accept { background: #28a745; color: white; }
+    .btn-reject { background: #dc3545; color: white; }
+    .btn-view { background: #333; color: #ccc; }
+    .no-apps { text-align: center; color: #888; padding: 60px 20px; }
+    .back-link { color: #007bff; text-decoration: none; display: inline-block; margin-bottom: 20px; }
+</style>
+
+<div class="job-apps">
+    <a href="{% url 'my_jobs' %}" class="back-link">← Back to My Dark Postings</a>
+    
+    <div class="header">
+        <h1>📋 Soul Submissions (Applications) for "{{ job.title }}"</h1>
+        <p>{{ applications.count }} soul(s) have offered themselves</p>
+    </div>
+    
+    {% if applications %}
+        {% for app in applications %}
+        <div class="app-card">
+            <div class="app-header">
+                <div class="applicant-info">
+                    <h3>{{ app.seeker.first_name }} {{ app.seeker.last_name }}</h3>
+                    <p>📧 Spirit Signal: {{ app.seeker.email }} • 📅 Summoned {{ app.applied_at|date:"M d, Y" }}</p>
+                </div>
+                <span class="status status-{{ app.doom_status }}">
+                    {{ app.get_doom_status_display }}
+                </span>
+            </div>
+            
+            <div style="margin-bottom: 15px; padding: 10px; background: #0a0a0a; border-radius: 6px;">
+                <p style="color: #888; margin-bottom: 5px;"><strong style="color: #ff6600;">Dark Arts (Skills):</strong> {{ app.seeker.profile.dark_arts|default:"Not provided"|truncatewords:20 }}</p>
+                {% if app.resume %}
+                    <a href="{{ app.resume.url }}" target="_blank" style="color: #00ff9d;">📄 View Resurrection Scroll (Resume)</a>
+                {% elif app.seeker.profile.resurrection_scroll %}
+                    <a href="{{ app.seeker.profile.resurrection_scroll.url }}" target="_blank" style="color: #00ff9d;">📄 View Resurrection Scroll (Resume)</a>
+                {% else %}
+                    <span style="color: #666;">No scroll provided</span>
+                {% endif %}
+            </div>
+            
+            <div class="cover-letter">{{ app.cover_scroll|truncatewords:50 }}</div>
+            
+            <div class="actions">
+                <a href="{% url 'application_detail' app.pk %}" class="btn btn-view">View Full Soul Submission</a>
+                {% if app.doom_status == 'purgatory' %}
+                    <form method="POST" action="{% url 'update_status' app.pk %}" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="status" value="ascended">
+                        <button type="submit" class="btn btn-accept">✓ Ascend (Accept)</button>
+                    </form>
+                    <form method="POST" action="{% url 'update_status' app.pk %}" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="status" value="banished">
+                        <button type="submit" class="btn btn-reject">✗ Banish (Reject)</button>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="no-apps">
+            <p>No souls have offered themselves yet.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .my-jobs { max-width: 900px; margin: 0 auto; padding: 40px 20px; }
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+    .header h1 { color: #fff; }
+    .btn-create { 
+        padding: 12px 24px; background: #007bff; color: white; 
+        text-decoration: none; border-radius: 6px; font-weight: bold; 
+    }
+    .job-card { 
+        background: #111; padding: 25px; border-radius: 10px; 
+        border: 1px solid #333; margin-bottom: 15px; 
+        display: flex; justify-content: space-between; align-items: center;
+        text-decoration: none; cursor: pointer; transition: all 0.2s;
+    }
+    .job-card:hover { border-color: #00ff9d; background: #151515; }
+    .job-info h3 { color: #00ff9d; margin-bottom: 8px; }
+    .job-meta { color: #888; font-size: 0.9rem; }
+    .job-actions { display: flex; gap: 10px; }
+    .btn-sm { 
+        padding: 8px 16px; border-radius: 6px; text-decoration: none; 
+        font-size: 0.9rem; 
+    }
+    .btn-apps { background: #28a745; color: white; }
+    .btn-view { background: #333; color: #ccc; border: 1px solid #555; }
+    .btn-view:hover { border-color: #00ff9d; color: #00ff9d; }
+    .no-jobs { text-align: center; color: #888; padding: 60px 20px; }
+</style>
+
+<div class="my-jobs">
+    <div class="header">
+        <h1>📋 My Dark Postings (Job Listings)</h1>
+        <a href="{% url 'job_create' %}" class="btn-create">+ Summon New Position</a>
+    </div>
+    
+    {% if jobs %}
+        {% for job in jobs %}
+        <div class="job-card">
+            <div class="job-info">
+                <h3 style="color: #00ff9d;">{{ job.title }}</h3>
+                <div class="job-meta">
+                    📍 Haunted Ground: {{ job.haunted_ground }} • 💰 Bounty: {{ job.bounty_gold }} • 📅 Summoned: {{ job.posted_at|date:"M d, Y" }}
+                </div>
+            </div>
+            <div class="job-actions">
+                <a href="{% url 'job_detail' job.pk %}" class="btn-sm btn-view">👁️ View Posting</a>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="no-jobs">
+            <p>You haven't summoned any dark positions yet.</p>
+            <a href="{% url 'job_create' %}" class="btn-create" style="display: inline-block; margin-top: 20px;">Summon Your First Position</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .applications-container { max-width: 900px; margin: 0 auto; padding: 40px 20px; }
+    .applications-container h1 { color: #fff; margin-bottom: 30px; }
+    .app-card { 
+        background: #111; padding: 25px; border-radius: 10px; 
+        border: 1px solid #333; margin-bottom: 15px; 
+        display: flex; justify-content: space-between; align-items: center;
+    }
+    .app-info h3 { color: #00ff9d; margin-bottom: 8px; }
+    .app-info h3 a { color: #00ff9d; text-decoration: none; }
+    .app-meta { color: #888; font-size: 0.9rem; }
+    .status { 
+        padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; 
+    }
+    .status-purgatory { background: #ffc107; color: #000; }
+    .status-ascended { background: #28a745; color: #fff; }
+    .status-banished { background: #dc3545; color: #fff; }
+    .app-actions { display: flex; gap: 10px; align-items: center; }
+    .btn-withdraw { 
+        padding: 8px 16px; background: #dc3545; color: white; 
+        text-decoration: none; border-radius: 6px; font-size: 0.9rem; 
+    }
+    .no-apps { text-align: center; color: #888; padding: 60px 20px; }
+</style>
+
+<div class="applications-container">
+    <h1>📋 My Soul Submissions (Applications)</h1>
+    
+    {% if applications %}
+        {% for app in applications %}
+        <div class="app-card">
+            <div class="app-info">
+                <h3><a href="{% url 'job_detail' app.job.pk %}">{{ app.job.title }}</a></h3>
+                <div class="app-meta">
+                    🏰 {{ app.job.summoner.organization_name|default:"Unknown Coven" }} • 
+                    📅 Summoned {{ app.applied_at|date:"M d, Y" }}
+                </div>
+            </div>
+            <div class="app-actions">
+                <span class="status status-{{ app.doom_status }}">
+                    {{ app.get_doom_status_display }}
+                </span>
+                {% if app.doom_status == 'purgatory' %}
+                    <a href="{% url 'withdraw_application' app.pk %}" class="btn-withdraw">Banish (Withdraw)</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="no-apps">
+            <p>You haven't submitted your soul to any dark opportunities yet.</p>
+            <a href="{% url 'job_list' %}" style="color: #007bff;">Browse Dark Opportunities →</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

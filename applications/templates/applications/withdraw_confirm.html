@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .withdraw-container { max-width: 500px; margin: 80px auto; padding: 20px; }
+    .withdraw-box { 
+        background: #111; padding: 40px; border-radius: 10px; 
+        border: 1px solid #dc3545; text-align: center; 
+    }
+    .withdraw-box h1 { color: #dc3545; margin-bottom: 20px; }
+    .withdraw-box p { color: #ccc; margin-bottom: 15px; }
+    .job-title { color: #00ff9d; font-size: 1.2rem; margin-bottom: 30px; }
+    .btn-group { display: flex; gap: 15px; justify-content: center; }
+    .btn { 
+        padding: 12px 30px; border-radius: 6px; text-decoration: none; 
+        font-weight: bold; border: none; cursor: pointer; 
+    }
+    .btn-danger { background: #dc3545; color: white; }
+    .btn-secondary { background: #333; color: #ccc; }
+</style>
+
+<div class="withdraw-container">
+    <div class="withdraw-box">
+        <h1>⚠️ Withdraw Application?</h1>
+        <p>Are you sure you want to withdraw your application for:</p>
+        <p class="job-title">"{{ application.job.title }}"</p>
+        
+        <form method="POST" style="display: inline;">
+            {% csrf_token %}
+            <div class="btn-group">
+                <button type="submit" class="btn btn-danger">Yes, Withdraw</button>
+                <a href="{% url 'my_applications' %}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

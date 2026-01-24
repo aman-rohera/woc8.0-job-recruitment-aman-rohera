@@ -1,24 +1,78 @@
 from django import forms
-from django.core.exceptions import ValidationError
+from django.contrib.auth.forms import UserCreationForm
+# Ensure both models are imported
 from .models import CursedUser, SoulProfile
 
-class SoulRegistrationForm(forms.ModelForm):
-    password = forms.CharField(widget=forms.PasswordInput)
-    
+# ==========================================
+# 1. REGISTRATION FORM (Sign Up)
+# ==========================================
+class SoulRegistrationForm(UserCreationForm):
+    first_name = forms.CharField(label="Mortal First Name")
+    last_name = forms.CharField(label="Mortal Last Name")
+    email = forms.EmailField(label="Spirit Signal (Email)")
+    phone = forms.CharField(label="Telepathy Number")
+    location = forms.CharField(label="Crypt Location")
+
     class Meta:
         model = CursedUser
-        fields = ['username', 'email', 'password', 'reincarnation_type']
+        fields = [
+            'reincarnation_type', 
+            'first_name', 'last_name', 'username', 'email', 
+            'phone', 'location', 
+            'employer_role', 'organization_name'
+        ]
 
+    def __init__(self, *args, **kwargs):
+        super(SoulRegistrationForm, self).__init__(*args, **kwargs)
+        for field in self.fields:
+            self.fields[field].widget.attrs.update({'class': 'spooky-input'})
+
+    def clean(self):
+        cleaned_data = super().clean()
+        user_type = cleaned_data.get('reincarnation_type')
+        org = cleaned_data.get('organization_name')
+        role = cleaned_data.get('employer_role')
+
+        if user_type == 'dungeon_master':
+            if not org:
+                self.add_error('organization_name', "Dungeon Masters must reveal their Organization!")
+            if not role:
+                self.add_error('employer_role', "Are you HR or Direct Company?")
+        
+        return cleaned_data
+
+# ==========================================
+# 2. USER UPDATE FORM (Identity: Name, Phone, Org)
+# ==========================================
+class UserUpdateForm(forms.ModelForm):
+    email = forms.EmailField(label="Spirit Signal (Email)")
+    first_name = forms.CharField(label="Mortal First Name")
+    last_name = forms.CharField(label="Mortal Last Name")
+
+    class Meta:
+        model = CursedUser
+        # ✅ REMOVED 'coven_website' from here
+        fields = ['first_name', 'last_name', 'email', 'phone', 'location', 'organization_name']
+
+    def __init__(self, *args, **kwargs):
+        super(UserUpdateForm, self).__init__(*args, **kwargs)
+        for field in self.fields:
+            self.fields[field].widget.attrs.update({'class': 'spooky-input'})
+
+# ==========================================
+# 3. PROFILE FORM (Details: Resume, Website, Bio)
+# ==========================================
 class SoulProfileForm(forms.ModelForm):
     class Meta:
         model = SoulProfile
-        fields = ['crypt_location', 'telepathy_frequency', 'resurrection_scroll', 
-                  'dark_arts', 'portal_url', 'coven_name', 'coven_description']
+        fields = ['resurrection_scroll', 'dark_arts', 'portal_url', 'coven_website', 'coven_description']
+        
+       
+        widgets = {
+            'resurrection_scroll': forms.FileInput(), 
+        }
 
-    # Custom Validation 
-    def clean_resurrection_scroll(self):
-        scroll = self.cleaned_data.get('resurrection_scroll')
-        if scroll:
-            if not scroll.name.endswith('.pdf'):
-                raise ValidationError("Only ancient scrolls (.pdf) are accepted in the afterlife!")
-        return scroll
+    def __init__(self, *args, **kwargs):
+        super(SoulProfileForm, self).__init__(*args, **kwargs)
+        for field in self.fields:
+            self.fields[field].widget.attrs.update({'class': 'spooky-input'})

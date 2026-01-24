@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .jobs-container { max-width: 900px; margin: 0 auto; padding: 40px 20px; }
+    .search-box { 
+        display: flex; gap: 10px; margin-bottom: 30px; 
+        background: #111; padding: 20px; border-radius: 10px; border: 1px solid #333;
+    }
+    .search-box input, .search-box select { 
+        padding: 12px; border-radius: 6px; border: 1px solid #444; 
+        background: #1a1a1a; color: #fff; flex: 1;
+    }
+    .search-box button { 
+        padding: 12px 24px; background: #007bff; color: white; 
+        border: none; border-radius: 6px; cursor: pointer; 
+    }
+    .job-card { 
+        background: #111; padding: 25px; border-radius: 10px; 
+        border: 1px solid #333; margin-bottom: 15px;
+        display: flex; justify-content: space-between; align-items: flex-start;
+    }
+    .job-card:hover { border-color: #00ff9d; }
+    .job-info { flex: 1; }
+    .job-info h3 { color: #fff; margin-bottom: 10px; }
+    .job-info h3 a { color: #00ff9d; text-decoration: none; }
+    .job-meta { color: #888; font-size: 0.9rem; margin-bottom: 15px; }
+    .job-meta span { margin-right: 20px; }
+    .job-type { 
+        display: inline-block; padding: 4px 12px; border-radius: 20px; 
+        font-size: 0.8rem; background: #222; color: #00ff9d; 
+    }
+    .job-actions { display: flex; gap: 10px; }
+    .btn-sm { 
+        padding: 8px 16px; border-radius: 6px; text-decoration: none; 
+        font-size: 0.85rem; font-weight: bold;
+    }
+    .btn-edit { background: #333; color: #ff6600; border: 1px solid #ff6600; }
+    .btn-edit:hover { background: rgba(255, 102, 0, 0.2); }
+    .btn-delete { background: #333; color: #ff0055; border: 1px solid #ff0055; }
+    .btn-delete:hover { background: rgba(255, 0, 85, 0.2); }
+    .btn-apps { background: #333; color: #00ff9d; border: 1px solid #00ff9d; }
+    .btn-apps:hover { background: rgba(0, 255, 157, 0.2); }
+    .btn-apply { background: #007bff; color: white; border: none; }
+    .btn-apply:hover { background: #0056b3; }
+    .btn-applied { background: #333; color: #00ff9d; border: 1px solid #00ff9d; cursor: default; }
+    .btn-view { background: #333; color: #ccc; border: 1px solid #555; }
+    .btn-view:hover { border-color: #888; color: #fff; }
+    .no-jobs { text-align: center; color: #888; padding: 40px; }
+</style>
+
+<div class="jobs-container">
+    <h1 style="color: #fff; margin-bottom: 30px;">🔮 Dark Opportunities (Job Listings)</h1>
+    
+    <form method="GET" class="search-box">
+        <input type="text" name="q" placeholder="Search by title or haunted ground..." value="{{ query }}">
+        <select name="type">
+            <option value="">All Moon Phases (Types)</option>
+            <option value="full_moon" {% if request.GET.type == 'full_moon' %}selected{% endif %}>Full Moon (Full Time)</option>
+            <option value="half_moon" {% if request.GET.type == 'half_moon' %}selected{% endif %}>Half Moon (Part Time)</option>
+            <option value="eclipse" {% if request.GET.type == 'eclipse' %}selected{% endif %}>Eclipse (Contract)</option>
+        </select>
+        <button type="submit">Hunt</button>
+    </form>
+    
+    {% if jobs %}
+        {% for job in jobs %}
+        <div class="job-card">
+            <div class="job-info">
+                <h3 style="color: #00ff9d;">{{ job.title }}</h3>
+                <div class="job-meta">
+                    <span>📍 Haunted Ground: {{ job.haunted_ground }}</span>
+                    <span>💰 Bounty: {{ job.bounty_gold }}</span>
+                    <span>🏰 Coven: {{ job.summoner.organization_name|default:"Unknown Coven" }}</span>
+                </div>
+                <span class="job-type">{{ job.get_contract_type_display }}</span>
+            </div>
+            <div class="job-actions">
+                {% if user.is_authenticated and user == job.summoner %}
+                    <a href="{% url 'job_applications' job.pk %}" class="btn-sm btn-apps">📋 Souls ({{ job.applications.count }})</a>
+                    <a href="{% url 'job_edit' job.pk %}" class="btn-sm btn-edit">✏️ Alter</a>
+                    <a href="{% url 'job_delete' job.pk %}" class="btn-sm btn-delete">🔥</a>
+                {% endif %}
+                {% if user.is_authenticated and user.reincarnation_type == 'specter' and job.pk in applied_job_ids %}
+                    <span class="btn-sm btn-applied">✅ Soul Offered</span>
+                {% endif %}
+                <a href="{% url 'job_detail' job.pk %}" class="btn-sm btn-view">👁️ View</a>
+            </div>
+        </div>
+        {% endfor %}
+        
+        <!-- Pagination -->
+        {% if jobs.has_other_pages %}
+        <div style="text-align: center; margin-top: 30px;">
+            {% if jobs.has_previous %}
+                <a href="?page={{ jobs.previous_page_number }}&q={{ query }}" style="color: #00ff9d;">← Previous</a>
+            {% endif %}
+            <span style="color: #888; margin: 0 15px;">Page {{ jobs.number }} of {{ jobs.paginator.num_pages }}</span>
+            {% if jobs.has_next %}
+                <a href="?page={{ jobs.next_page_number }}&q={{ query }}" style="color: #00ff9d;">Next →</a>
+            {% endif %}
+        </div>
+        {% endif %}
+    {% else %}
+        <div class="no-jobs">
+            <p>No dark opportunities found in the void...</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

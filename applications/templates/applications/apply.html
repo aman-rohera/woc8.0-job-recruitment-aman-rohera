@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .apply-container { max-width: 600px; margin: 0 auto; padding: 40px 20px; }
+    .job-preview { 
+        background: #111; padding: 20px; border-radius: 10px; 
+        border: 1px solid #333; margin-bottom: 30px; 
+    }
+    .job-preview h2 { color: #00ff9d; margin-bottom: 10px; }
+    .job-preview p { color: #888; }
+    .form-box { 
+        background: #111; padding: 40px; border-radius: 10px; 
+        border: 1px solid #333; 
+    }
+    .form-box h1 { color: #fff; margin-bottom: 30px; }
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; color: #ccc; margin-bottom: 8px; }
+    .form-group textarea { 
+        width: 100%; padding: 12px; border-radius: 6px; 
+        border: 1px solid #444; background: #1a1a1a; color: #fff; 
+        min-height: 200px; resize: vertical;
+    }
+    .form-group textarea:focus { border-color: #00ff9d; outline: none; }
+    .btn-submit { 
+        width: 100%; padding: 15px; background: #007bff; color: white; 
+        border: none; border-radius: 6px; font-size: 1.1rem; cursor: pointer; 
+    }
+    .btn-cancel { 
+        display: block; text-align: center; color: #888; 
+        margin-top: 15px; text-decoration: none; 
+    }
+</style>
+
+<div class="apply-container">
+    <div class="job-preview">
+        <h2>{{ job.title }}</h2>
+        <p>📍 Haunted Ground: {{ job.haunted_ground }} • 💰 Bounty: {{ job.bounty_gold }}</p>
+        <p>🏰 {{ job.summoner.organization_name|default:"Unknown Coven" }}</p>
+    </div>
+    
+    <div class="form-box">
+        <h1>📝 Submit Your Soul (Apply)</h1>
+        
+        {% if form.errors %}
+        <div style="background: #ff0055; color: white; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
+            <p><strong>Please fix the following errors:</strong></p>
+            {{ form.errors }}
+        </div>
+        {% endif %}
+        
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="id_cover_scroll">Incantation (Cover Letter) <span style="color: #ff0055;">*</span></label>
+                <textarea name="cover_scroll" id="id_cover_scroll" required
+                    placeholder="Tell the summoner why you're the perfect specter for this role...">{{ form.cover_scroll.value|default:'' }}</textarea>
+                {% if form.cover_scroll.errors %}
+                <p style="color: #ff0055; margin-top: 5px;">{{ form.cover_scroll.errors.0 }}</p>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label>📄 Resurrection Scroll (Resume)</label>
+                {% if user.profile.resurrection_scroll %}
+                <div style="margin-bottom: 15px; padding: 15px; background: #1a1a1a; border-radius: 6px; border: 1px solid #00ff9d;">
+                    <p style="color: #00ff9d; margin-bottom: 10px;">✅ Your profile has a scroll on file:</p>
+                    <a href="{{ user.profile.resurrection_scroll.url }}" target="_blank" style="color: #007bff;">View Current Scroll</a>
+                </div>
+                <label style="color: #ccc; font-size: 0.95rem; display: block; margin-bottom: 15px;">
+                    <input type="checkbox" name="use_profile_resume" checked style="margin-right: 8px; width: 18px; height: 18px;">
+                    Use my profile scroll
+                </label>
+                <p style="color: #888; font-size: 0.9rem; margin-bottom: 10px;">Or upload a different scroll for this summoning:</p>
+                {% else %}
+                <div style="margin-bottom: 15px; padding: 15px; background: #1a1a1a; border-radius: 6px; border: 1px solid #ff6600;">
+                    <p style="color: #ff6600; margin-bottom: 5px;">⚠️ No scroll on your profile</p>
+                    <p style="color: #888; font-size: 0.85rem;">Upload one below, or <a href="{% url 'soul_edit' %}" style="color: #007bff;">add a scroll to your profile</a> for future summonings.</p>
+                </div>
+                {% endif %}
+                <input type="file" name="resume" accept=".pdf,.doc,.docx" 
+                    style="margin-top: 10px; padding: 10px; background: #1a1a1a; border: 1px dashed #444; border-radius: 6px; width: 100%; color: #ccc;">
+                <p style="color: #666; font-size: 0.85rem; margin-top: 5px;">Accepted formats: PDF, DOC, DOCX</p>
+            </div>
+            
+            <button type="submit" class="btn-submit">Submit Application</button>
+        </form>
+        
+        <a href="{% url 'job_detail' job.pk %}" class="btn-cancel">Cancel</a>
+    </div>
+</div>
+{% endblock %}

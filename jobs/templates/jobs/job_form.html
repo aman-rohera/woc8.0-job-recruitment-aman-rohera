@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .form-container { max-width: 600px; margin: 0 auto; padding: 40px 20px; }
+    .form-box { 
+        background: #111; padding: 40px; border-radius: 10px; 
+        border: 1px solid #333; 
+    }
+    .form-box h1 { color: #00ff9d; margin-bottom: 30px; text-align: center; }
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; color: #ccc; margin-bottom: 8px; }
+    .form-group input, .form-group textarea, .form-group select { 
+        width: 100%; padding: 12px; border-radius: 6px; 
+        border: 1px solid #444; background: #1a1a1a; color: #fff; 
+    }
+    .form-group textarea { min-height: 150px; resize: vertical; }
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus { 
+        border-color: #00ff9d; outline: none; 
+    }
+    .btn-submit { 
+        width: 100%; padding: 15px; background: #007bff; color: white; 
+        border: none; border-radius: 6px; font-size: 1.1rem; cursor: pointer; 
+        margin-top: 20px;
+    }
+    .btn-submit:hover { background: #0056b3; }
+    .btn-cancel { 
+        display: block; text-align: center; color: #888; 
+        margin-top: 15px; text-decoration: none; 
+    }
+</style>
+
+<div class="form-container">
+    <div class="form-box">
+        <h1>🔮 {{ action }} Dark Opportunity (Job)</h1>
+        
+        <form method="POST">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="id_title">Role Title (Job Title)</label>
+                <input type="text" name="title" id="id_title" value="{{ form.title.value|default:'' }}" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="id_description">Grim Details (Description)</label>
+                <textarea name="description" id="id_description" required>{{ form.description.value|default:'' }}</textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="id_haunted_ground">Haunted Ground (Location)</label>
+                <input type="text" name="haunted_ground" id="id_haunted_ground" value="{{ form.haunted_ground.value|default:'' }}" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="id_bounty_gold">Bounty (Salary)</label>
+                <input type="text" name="bounty_gold" id="id_bounty_gold" value="{{ form.bounty_gold.value|default:'' }}" placeholder="e.g. $50,000 - $70,000" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="id_contract_type">Moon Phase (Job Type)</label>
+                <select name="contract_type" id="id_contract_type">
+                    <option value="full_moon" {% if form.contract_type.value == 'full_moon' %}selected{% endif %}>Full Moon (Full Time)</option>
+                    <option value="half_moon" {% if form.contract_type.value == 'half_moon' %}selected{% endif %}>Half Moon (Part Time)</option>
+                    <option value="eclipse" {% if form.contract_type.value == 'eclipse' %}selected{% endif %}>Eclipse (Contract)</option>
+                </select>
+            </div>
+            
+            <button type="submit" class="btn-submit">{{ action }} Dark Opportunity</button>
+        </form>
+        
+        <a href="{% url 'my_jobs' %}" class="btn-cancel">Cancel Ritual</a>
+    </div>
+</div>
+{% endblock %}
