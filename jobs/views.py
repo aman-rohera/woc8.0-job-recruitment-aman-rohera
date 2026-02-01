@@ -16,22 +16,41 @@ def job_list(request):
     query = request.GET.get('q', '')
     if query:
         jobs = jobs.filter(title__icontains=query) | jobs.filter(haunted_ground__icontains=query)
-    
-    # Filter by job type
-    job_type = request.GET.get('type', '')
-    if job_type:
-        jobs = jobs.filter(contract_type=job_type)
-    
+
+    # Filter by job type (multiple checkboxes)
+    job_types = request.GET.getlist('type')
+    if job_types:
+        jobs = jobs.filter(contract_type__in=job_types)
+
+    # Filter by salary range
+    min_salary = request.GET.get('min_salary')
+    max_salary = request.GET.get('max_salary')
+    if min_salary:
+        try:
+            jobs = jobs.filter(bounty_gold__gte=int(min_salary))
+        except Exception:
+            pass
+    if max_salary:
+        try:
+            jobs = jobs.filter(bounty_gold__lte=int(max_salary))
+        except Exception:
+            pass
+
     paginator = Paginator(jobs, 10)
     page = request.GET.get('page')
     jobs = paginator.get_page(page)
-    
+
     # Get list of job IDs the user has applied to
     applied_job_ids = []
     if request.user.is_authenticated and request.user.reincarnation_type == 'specter':
         applied_job_ids = DarkApplication.objects.filter(seeker=request.user).values_list('job_id', flat=True)
-    
-    return render(request, 'jobs/job_list.html', {'jobs': jobs, 'query': query, 'applied_job_ids': list(applied_job_ids)})
+
+    return render(request, 'jobs/job_list.html', {
+        'jobs': jobs,
+        'query': query,
+        'applied_job_ids': list(applied_job_ids),
+        'selected_types': job_types,
+    })
 
 
 def job_detail(request, pk):

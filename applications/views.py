@@ -23,7 +23,7 @@ def apply_to_job(request, job_id):
         return redirect('job_detail', pk=job_id)
     
     if request.method == 'POST':
-        form = ApplicationForm(request.POST, request.FILES)
+        form = ApplicationForm(request.POST, request.FILES, user=request.user)
         if form.is_valid():
             application = form.save(commit=False)
             application.job = job
@@ -45,7 +45,7 @@ def apply_to_job(request, job_id):
         else:
             messages.error(request, "Please fill in all required fields.")
     else:
-        form = ApplicationForm()
+        form = ApplicationForm(user=request.user)
     
     return render(request, 'applications/apply.html', {'form': form, 'job': job})
 

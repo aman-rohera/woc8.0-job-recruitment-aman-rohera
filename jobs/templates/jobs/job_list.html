@@ -49,21 +49,104 @@
     .no-jobs { text-align: center; color: #888; padding: 40px; }
 </style>
 
-<div class="jobs-container">
-    <h1 style="color: #fff; margin-bottom: 30px;">🔮 Dark Opportunities (Job Listings)</h1>
-    
-    <form method="GET" class="search-box">
-        <input type="text" name="q" placeholder="Search by title or haunted ground..." value="{{ query }}">
-        <select name="type">
-            <option value="">All Moon Phases (Types)</option>
-            <option value="full_moon" {% if request.GET.type == 'full_moon' %}selected{% endif %}>Full Moon (Full Time)</option>
-            <option value="half_moon" {% if request.GET.type == 'half_moon' %}selected{% endif %}>Half Moon (Part Time)</option>
-            <option value="eclipse" {% if request.GET.type == 'eclipse' %}selected{% endif %}>Eclipse (Contract)</option>
-        </select>
-        <button type="submit">Hunt</button>
-    </form>
-    
-    {% if jobs %}
+<div class="jobs-container" style="display: flex; gap: 30px;">
+    <!-- Sidebar Filter -->
+    <aside style="width: 340px; height: 520px; background: #181818; border-radius: 16px; border: 1.5px solid #292929; padding: 24px 24px 20px 24px; box-shadow: 0 4px 18px 0 #0003; display: flex; flex-direction: column; justify-content: flex-start; margin-top: 48px;">
+        <h2 style="color: #00ff9d; font-size: 1.25rem; margin-bottom: 18px; font-family: 'Roboto', sans-serif; letter-spacing: 0.5px;">Filter Jobs</h2>
+        <form method="get" id="filter-form">
+            <div style="margin-bottom: 22px;">
+                <label style="color: #aaa; font-weight: 600; font-size: 1rem; margin-bottom: 6px; display: block;">Search</label>
+                <input type="text" name="q" placeholder="Title or haunted ground..." value="{{ query }}" style="width: 100%; margin-top: 4px; background: #222; border: 1px solid #333; color: #fff; border-radius: 6px; padding: 8px 10px; font-size: 1rem;">
+            </div>
+            <div style="margin-bottom: 22px;">
+                <div style="color: #aaa; font-weight: 600; font-size: 1rem; margin-bottom: 8px;">Job Type</div>
+                <style>
+                    .pill-group { display: flex; gap: 10px; }
+                    .pill-btn {
+                        border: none;
+                        outline: none;
+                        padding: 8px 18px;
+                        border-radius: 20px;
+                        background: #222;
+                        color: #eee;
+                        font-size: 0.98rem;
+                        font-weight: 500;
+                        cursor: pointer;
+                        transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+                        box-shadow: 0 2px 8px #0003;
+                    }
+                    .pill-btn.selected {
+                        background: linear-gradient(90deg,#00ff9d,#00c7a0);
+                        color: #181818;
+                        font-weight: bold;
+                        box-shadow: 0 2px 12px #00ff9d33;
+                    }
+                </style>
+                <div class="pill-group" id="job-type-pills">
+                    <button type="button" class="pill-btn{% if 'full_moon' in selected_types %} selected{% endif %}" data-value="full_moon">Full Moon (Full Time)</button>
+                    <button type="button" class="pill-btn{% if 'half_moon' in selected_types %} selected{% endif %}" data-value="half_moon">Half Moon (Part Time)</button>
+                    <button type="button" class="pill-btn{% if 'eclipse' in selected_types %} selected{% endif %}" data-value="eclipse">Eclipse (Contract)</button>
+                </div>
+                <!-- Hidden inputs for selected types -->
+                <div id="selected-types-container">
+                    {% for t in selected_types %}
+                        <input type="hidden" name="type" value="{{ t }}">
+                    {% endfor %}
+                </div>
+                <script>
+                // Pill toggle logic
+                document.addEventListener('DOMContentLoaded', function() {
+                    const pills = document.querySelectorAll('#job-type-pills .pill-btn');
+                    const selectedTypesContainer = document.getElementById('selected-types-container');
+                    const form = document.getElementById('filter-form');
+                    // Helper to update hidden inputs
+                    function updateHiddenInputs(selected) {
+                        selectedTypesContainer.innerHTML = '';
+                        selected.forEach(val => {
+                            const input = document.createElement('input');
+                            input.type = 'hidden';
+                            input.name = 'type';
+                            input.value = val;
+                            selectedTypesContainer.appendChild(input);
+                        });
+                    }
+                    // Initial selected
+                    let selected = Array.from(pills).filter(p => p.classList.contains('selected')).map(p => p.dataset.value);
+                    pills.forEach(pill => {
+                        pill.addEventListener('click', function() {
+                            const value = this.dataset.value;
+                            if (this.classList.contains('selected')) {
+                                this.classList.remove('selected');
+                                selected = selected.filter(v => v !== value);
+                            } else {
+                                this.classList.add('selected');
+                                selected.push(value);
+                            }
+                            updateHiddenInputs(selected);
+                        });
+                    });
+                    // On form submit, ensure hidden inputs are up to date
+                    form.addEventListener('submit', function() {
+                        updateHiddenInputs(selected);
+                    });
+                });
+                </script>
+            </div>
+            <div style="margin-bottom: 22px;">
+                <div style="color: #aaa; font-weight: 600; font-size: 1rem; margin-bottom: 8px;">Salary Range</div>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <input type="number" name="min_salary" placeholder="Min" value="{{ request.GET.min_salary }}" style="width: 48%; background: #222; border: 1px solid #333; color: #fff; border-radius: 6px; padding: 7px 8px; font-size: 0.98rem;">
+                    <span style="color: #666; font-size: 1.1rem;">-</span>
+                    <input type="number" name="max_salary" placeholder="Max" value="{{ request.GET.max_salary }}" style="width: 48%; background: #222; border: 1px solid #333; color: #fff; border-radius: 6px; padding: 7px 8px; font-size: 0.98rem;">
+                </div>
+            </div>
+            <button type="submit" style="width: 100%; background: linear-gradient(90deg,#00ff9d,#00c7a0); color: #000; font-weight: bold; border: none; border-radius: 6px; padding: 11px 0; margin-top: 8px; font-size: 1.08rem; letter-spacing: 0.5px;">Apply Filters</button>
+        </form>
+    </aside>
+
+    <div style="flex: 1;">
+        <h1 style="color: #fff; margin-bottom: 30px;">🔮 Dark Opportunities (Job Listings)</h1>
+        {% if jobs %}
         {% for job in jobs %}
         <div class="job-card">
             <div class="job-info">
