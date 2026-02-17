@@ -119,13 +119,27 @@
         <a href="{% url 'home' %}" class="nav-brand">🎃 CareerSphere (The Afterlife Portal)</a>
         <div class="nav-links">
             {% if user.is_authenticated %}
+                <!-- Common Links for All Authenticated Users -->
+                <a href="{% url 'job_list' %}">🔮 Dark Opportunities</a>
+                
+                {% if user.reincarnation_type == 'dungeon_master' %}
+                    <!-- Employer Links -->
+                    <a href="{% url 'job_create' %}" style="color: #ff7b00;">📜 Summon Job</a>
+                    <a href="{% url 'my_jobs' %}">🏰 My Summonings</a>
+                {% elif user.reincarnation_type == 'specter' %}
+                    <!-- Seeker Links -->
+                    <a href="{% url 'my_applications' %}">📋 My Soul Offerings</a>
+                {% endif %}
+                
                 <a href="{% url 'soul_edit' %}" style="color: var(--accent-orange);">💀 {{ user.username }}</a>
-                <a href="{% url 'dashboard' %}">Crypt (Dashboard)</a>
+                <a href="{% url 'dashboard' %}">Crypt</a>
                 <form action="{% url 'logout' %}" method="post" style="display:inline;">
                     {% csrf_token %}
-                    <button type="submit" style="background:none; border:none; color:inherit; cursor:pointer; font-weight:bold; font-family:inherit; font-size:inherit;">Rest in Peace (Logout)</button>
+                    <button type="submit" style="background:none; border:none; color:inherit; cursor:pointer; font-weight:bold; font-family:inherit; font-size:inherit;">☠️ Rest</button>
                 </form>
             {% else %}
+                <!-- Guest Links -->
+                <a href="{% url 'job_list' %}">🔮 Browse Jobs</a>
                 <a href="{% url 'login' %}">Resurrect (Login)</a>
                 <a href="{% url 'signup' %}">Join the Afterlife (Sign Up)</a>
             {% endif %}

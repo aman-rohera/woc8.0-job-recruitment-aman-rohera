@@ -40,6 +40,9 @@ class CursedUser(AbstractUser):
         null=True, 
         verbose_name="Coven Name (Organization)"
     )
+    
+    # Track if social auth users have completed their profile
+    profile_complete = models.BooleanField(default=False)
 
     def is_employer(self):
         return self.reincarnation_type == 'dungeon_master'

@@ -18,6 +18,9 @@ urlpatterns = [
     # We use 'next_page' to redirect them to login screen after leaving
     path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
 
+    # --- PROFILE COMPLETION (Google Sign-In) ---
+    path('complete-profile/', views.complete_profile, name='complete_profile'),
+    
     # --- PROFILE DASHBOARD ---
     path('crypt/', views.soul_dashboard, name='dashboard'),
     path('crypt/edit/', views.soul_edit, name='soul_edit'),

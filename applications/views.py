@@ -59,8 +59,13 @@ def my_applications(request):
 
 @login_required
 def withdraw_application(request, pk):
-    """Seeker withdraws their application."""
+    """Seeker withdraws their application (only if still pending)."""
     application = get_object_or_404(DarkApplication, pk=pk, seeker=request.user)
+    
+    # Only allow withdrawal if status is still pending (purgatory)
+    if application.doom_status != 'purgatory':
+        messages.error(request, "You can only withdraw applications that are still in Purgatory (Pending)!")
+        return redirect('my_applications')
     
     if request.method == 'POST':
         application.delete()

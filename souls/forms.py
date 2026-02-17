@@ -76,3 +76,49 @@ class SoulProfileForm(forms.ModelForm):
         super(SoulProfileForm, self).__init__(*args, **kwargs)
         for field in self.fields:
             self.fields[field].widget.attrs.update({'class': 'spooky-input'})
+
+
+# ==========================================
+# 4. PROFILE COMPLETION FORM (For Social Auth Users)
+# ==========================================
+class ProfileCompletionForm(forms.ModelForm):
+    """Form for completing profile after Google sign-in."""
+    username = forms.CharField(
+        label="Soul ID (Username)",
+        help_text="Choose a unique username"
+    )
+    
+    class Meta:
+        model = CursedUser
+        fields = ['username', 'reincarnation_type', 'phone', 'location', 'employer_role', 'organization_name']
+
+    def __init__(self, *args, **kwargs):
+        super(ProfileCompletionForm, self).__init__(*args, **kwargs)
+        for field in self.fields:
+            self.fields[field].widget.attrs.update({'class': 'spooky-input'})
+        # Make phone and location optional for initial completion
+        self.fields['phone'].required = False
+        self.fields['location'].required = False
+        self.fields['employer_role'].required = False
+        self.fields['organization_name'].required = False
+
+    def clean_username(self):
+        username = self.cleaned_data.get('username')
+        # Check if username is taken (excluding current user)
+        if CursedUser.objects.filter(username=username).exclude(pk=self.instance.pk).exists():
+            raise forms.ValidationError("This Soul ID is already taken by another spirit!")
+        return username
+
+    def clean(self):
+        cleaned_data = super().clean()
+        user_type = cleaned_data.get('reincarnation_type')
+        org = cleaned_data.get('organization_name')
+        role = cleaned_data.get('employer_role')
+
+        if user_type == 'dungeon_master':
+            if not org:
+                self.add_error('organization_name', "Dungeon Masters must reveal their Organization!")
+            if not role:
+                self.add_error('employer_role', "Are you HR or Direct Company?")
+        
+        return cleaned_data

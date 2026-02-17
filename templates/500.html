@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>500 - Server Error | CareerSphere</title>
+    <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #1a0b2e;
+            --text-main: #e0e0e0;
+            --accent-orange: #ff7b00;
+            --accent-red: #ff0055;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Roboto', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .error-container {
+            max-width: 600px;
+        }
+        
+        .error-code {
+            font-family: 'Creepster', cursive;
+            font-size: 10rem;
+            color: var(--accent-red);
+            text-shadow: 4px 4px #000, 0 0 40px rgba(255, 0, 85, 0.5);
+            line-height: 1;
+            margin-bottom: 20px;
+        }
+        
+        .error-title {
+            font-family: 'Creepster', cursive;
+            font-size: 2.5rem;
+            color: var(--accent-orange);
+            text-shadow: 2px 2px #000;
+            margin-bottom: 20px;
+        }
+        
+        .error-message {
+            font-size: 1.2rem;
+            color: #aaa;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+        
+        .skull-icon {
+            font-size: 4rem;
+            margin-bottom: 30px;
+            animation: shake 0.5s ease-in-out infinite;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-5deg); }
+            75% { transform: rotate(5deg); }
+        }
+        
+        .btn-home {
+            background: linear-gradient(90deg, var(--accent-orange), #ff9100);
+            color: #000;
+            padding: 15px 40px;
+            font-family: 'Creepster', cursive;
+            font-size: 1.3rem;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+        }
+        
+        .btn-home:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255, 123, 0, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="skull-icon">💀</div>
+        <div class="error-code">500</div>
+        <h1 class="error-title">The Server Has Fallen!</h1>
+        <p class="error-message">
+            A dark curse has struck our servers...<br>
+            Our necromancers are working to resurrect them. Please try again later.
+        </p>
+        
+        <a href="/" class="btn-home">🏠 Return to Safety</a>
+    </div>
+</body>
+</html>

@@ -8,7 +8,8 @@ from .models import SoulProfile, CursedUser
 from .forms import (
     SoulProfileForm,
     SoulRegistrationForm,
-    UserUpdateForm
+    UserUpdateForm,
+    ProfileCompletionForm
 )
 
 # =========================================================
@@ -38,18 +39,67 @@ def register(request):
     if request.method == 'POST':
         form = SoulRegistrationForm(request.POST)
         if form.is_valid():
-            user = form.save()
+            user = form.save(commit=False)
+            user.profile_complete = True  # Normal signup is complete
+            user.save()
 
             # Create profile safely (ONE profile per user)
             SoulProfile.objects.create(user=user)
 
-            login(request, user)
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             messages.success(request, "Your soul has been successfully summoned!")
             return redirect('dashboard')
     else:
         form = SoulRegistrationForm()
 
     return render(request, 'registration/signup.html', {'form': form})
+
+
+@login_required
+def complete_profile(request):
+    """
+    Complete profile after Google sign-in.
+    Asks for username and role.
+    """
+    # If profile is already complete, redirect to dashboard
+    if request.user.profile_complete:
+        return redirect('dashboard')
+    
+    if request.method == 'POST':
+        form = ProfileCompletionForm(request.POST, instance=request.user)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.profile_complete = True
+            user.save()
+            
+            # Create SoulProfile if not exists
+            SoulProfile.objects.get_or_create(user=user)
+            
+            messages.success(request, "Your spirit identity has been sealed! Welcome to the Graveyard.")
+            return redirect('dashboard')
+    else:
+        form = ProfileCompletionForm(instance=request.user)
+    
+    return render(request, 'registration/complete_profile.html', {'form': form})
+
+
+def check_username_available(request):
+    """
+    AJAX endpoint to check if username is available.
+    """
+    username = request.GET.get('username', '')
+    user_id = request.GET.get('user_id', None)
+    
+    if username:
+        query = CursedUser.objects.filter(username=username)
+        if user_id:
+            query = query.exclude(pk=user_id)
+        
+        if query.exists():
+            return JsonResponse({'is_taken': True, 'error_message': 'This Soul ID is already taken!'})
+        return JsonResponse({'is_taken': False})
+    
+    return JsonResponse({'is_taken': False})
 
 
 # =========================================================
@@ -61,6 +111,10 @@ def soul_dashboard(request):
     """
     Profile dashboard (The Crypt).
     """
+    # Redirect to complete profile if not done (for Google sign-in users)
+    if not request.user.profile_complete:
+        return redirect('complete_profile')
+    
     profile, _ = SoulProfile.objects.get_or_create(user=request.user)
 
     context = {

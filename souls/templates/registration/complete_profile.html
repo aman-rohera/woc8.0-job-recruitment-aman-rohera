@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .complete-box {
+        background-color: #111;
+        border: 1px solid #333;
+        border-radius: 12px;
+        padding: 50px;
+        box-shadow: 0 0 25px rgba(0, 255, 157, 0.15);
+        max-width: 600px;
+        margin: 80px auto;
+    }
+
+    .box-label {
+        display: block;
+        color: #ccc;
+        margin-bottom: 10px;
+        font-size: 1rem;
+        font-weight: bold;
+        letter-spacing: 0.5px;
+    }
+
+    .spooky-input {
+        width: 100%;
+        padding: 12px;
+        background: #000;
+        border: 1px solid #444;
+        color: #fff;
+        border-radius: 6px;
+        font-family: 'Courier New', monospace;
+        transition: all 0.3s ease;
+    }
+
+    .spooky-input:focus {
+        border-color: #00ff9d;
+        outline: none;
+        box-shadow: 0 0 10px rgba(0, 255, 157, 0.3);
+    }
+
+    .error-box {
+        background: rgba(255, 0, 85, 0.1);
+        border: 1px solid #ff0055;
+        color: #ff0055;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 25px;
+        text-align: center;
+        font-size: 0.9rem;
+    }
+
+    .validation-msg {
+        display: block;
+        margin-top: 5px;
+        font-size: 0.85rem;
+    }
+    .validation-msg.error { color: #ff0055; }
+    .validation-msg.success { color: #00ff9d; }
+
+    #div_employer_fields {
+        display: none;
+        margin-top: 20px;
+        padding: 20px;
+        background: rgba(214, 0, 255, 0.1);
+        border: 1px solid #d600ff;
+        border-radius: 8px;
+    }
+</style>
+
+<div class="container">
+    <div class="complete-box">
+        <h2 class="spooky-title" style="text-align: center; margin-bottom: 10px; font-size: 2.2rem; color: #00ff9d;">
+            🔮 Complete Your Spirit Identity
+        </h2>
+        <p style="text-align: center; color: #888; margin-bottom: 30px;">
+            Welcome, {{ user.first_name|default:user.email }}! Choose your identity in the Graveyard.
+        </p>
+
+        {% if form.errors %}
+            <div class="error-box">
+                ⚠️ Please fix the errors below.
+                {% for field in form %}
+                    {% for error in field.errors %}
+                        <p style="margin: 5px 0;">{{ field.label }}: {{ error }}</p>
+                    {% endfor %}
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div style="margin-bottom: 25px;">
+                <label class="box-label">Soul ID (Username) <span style="color: #ff0055;">*</span></label>
+                {{ form.username }}
+                <small id="username-feedback" class="validation-msg"></small>
+            </div>
+
+            <div style="margin-bottom: 25px;">
+                <label class="box-label" style="color: #00ff9d;">Reincarnation Type (Role) <span style="color: #ff0055;">*</span></label>
+                {{ form.reincarnation_type }}
+                <small style="color: #666; font-size: 0.85rem;">Choose your path in the underworld</small>
+            </div>
+
+            <div id="div_employer_fields">
+                <h4 style="color: #d600ff; margin-bottom: 15px;">🏰 Dungeon Master Details</h4>
+                
+                <div style="margin-bottom: 20px;">
+                    <label class="box-label">Summoner Profile Type (Employer Type)</label>
+                    {{ form.employer_role }}
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label class="box-label">Coven Name (Organization)</label>
+                    {{ form.organization_name }}
+                </div>
+            </div>
+
+            <div style="margin-bottom: 25px;">
+                <label class="box-label">Telepathy Freq (Phone) <span style="color: #666;">(optional)</span></label>
+                {{ form.phone }}
+            </div>
+
+            <div style="margin-bottom: 25px;">
+                <label class="box-label">Haunted Ground (Location) <span style="color: #666;">(optional)</span></label>
+                {{ form.location }}
+            </div>
+
+            <button type="submit" class="spooky-btn" style="width: 100%; font-size: 1.1rem; padding: 15px; background: linear-gradient(90deg,#00ff9d,#00c7a0); color: #000; border: none; font-weight: bold;">
+                ✨ Seal My Identity
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Toggle employer fields based on role selection
+        const typeField = document.querySelector('#id_reincarnation_type');
+        const employerFields = document.querySelector('#div_employer_fields');
+
+        function toggleEmployerFields() {
+            if (typeField && typeField.value === 'dungeon_master') {
+                employerFields.style.display = 'block';
+            } else {
+                employerFields.style.display = 'none';
+            }
+        }
+
+        if (typeField) {
+            typeField.addEventListener('change', toggleEmployerFields);
+            toggleEmployerFields();
+        }
+
+        // Live username validation
+        const usernameInput = document.querySelector('#id_username');
+        const userFeedback = document.getElementById('username-feedback');
+
+        if (usernameInput) {
+            usernameInput.addEventListener('blur', function() {
+                const username = usernameInput.value;
+                if (username.length > 0) {
+                    fetch(`{% url 'validate_user' %}?username=${username}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.is_taken) {
+                                userFeedback.textContent = '✖ ' + data.error_message;
+                                userFeedback.className = 'validation-msg error';
+                                usernameInput.style.borderColor = '#ff0055';
+                            } else {
+                                userFeedback.textContent = '✔ Available';
+                                userFeedback.className = 'validation-msg success';
+                                usernameInput.style.borderColor = '#00ff9d';
+                            }
+                        });
+                } else {
+                    userFeedback.textContent = '';
+                    usernameInput.style.borderColor = '#444';
+                }
+            });
+        }
+
+        // Add spooky-input class to all inputs
+        document.querySelectorAll('input, select, textarea').forEach(el => {
+            el.classList.add('spooky-input');
+        });
+    });
+</script>
+{% endblock %}

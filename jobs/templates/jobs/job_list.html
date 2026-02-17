@@ -174,13 +174,28 @@
         
         <!-- Pagination -->
         {% if jobs.has_other_pages %}
-        <div style="text-align: center; margin-top: 30px;">
+        <style>
+            .pagination { display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 30px; }
+            .pagination a, .pagination span { padding: 8px 16px; border-radius: 6px; text-decoration: none; }
+            .pagination a { background: #222; color: #00ff9d; border: 1px solid #00ff9d; transition: all 0.2s; }
+            .pagination a:hover { background: rgba(0, 255, 157, 0.2); }
+            .pagination .current { background: #00ff9d; color: #000; font-weight: bold; }
+            .pagination .disabled { background: #222; color: #555; border: 1px solid #333; cursor: not-allowed; }
+            .pagination .page-info { color: #888; }
+        </style>
+        <div class="pagination">
             {% if jobs.has_previous %}
-                <a href="?page={{ jobs.previous_page_number }}&q={{ query }}" style="color: #00ff9d;">← Previous</a>
+                <a href="?page={{ jobs.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% for t in selected_types %}&type={{ t }}{% endfor %}{% if request.GET.min_salary %}&min_salary={{ request.GET.min_salary }}{% endif %}{% if request.GET.max_salary %}&max_salary={{ request.GET.max_salary }}{% endif %}">← Previous</a>
+            {% else %}
+                <span class="disabled">← Previous</span>
             {% endif %}
-            <span style="color: #888; margin: 0 15px;">Page {{ jobs.number }} of {{ jobs.paginator.num_pages }}</span>
+            
+            <span class="page-info">Page {{ jobs.number }} of {{ jobs.paginator.num_pages }}</span>
+            
             {% if jobs.has_next %}
-                <a href="?page={{ jobs.next_page_number }}&q={{ query }}" style="color: #00ff9d;">Next →</a>
+                <a href="?page={{ jobs.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% for t in selected_types %}&type={{ t }}{% endfor %}{% if request.GET.min_salary %}&min_salary={{ request.GET.min_salary }}{% endif %}{% if request.GET.max_salary %}&max_salary={{ request.GET.max_salary }}{% endif %}">Next →</a>
+            {% else %}
+                <span class="disabled">Next →</span>
             {% endif %}
         </div>
         {% endif %}
