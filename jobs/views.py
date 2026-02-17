@@ -36,7 +36,7 @@ def job_list(request):
         except Exception:
             pass
 
-    paginator = Paginator(jobs, 10)
+    paginator = Paginator(jobs, 5)
     page = request.GET.get('page')
     jobs = paginator.get_page(page)
 
